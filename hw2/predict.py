@@ -1,44 +1,61 @@
 
 # coding: utf-8
 
-# In[ ]:
-
 import sys
-modelname = sys.argv[1]
-testdata = sys.argv[2]
-outputfile = sys.argv[3]
-
-
-# In[1]:
-
-import pickle
-from model import prediction
-
-
+modelname=sys.argv[1]
+testdata=sys.argv[2]
+outputdata=sys.argv[3]
 # In[2]:
 
+import pickle
+from model import a
 modelname = modelname+".pkl"
 with open(modelname,'rb') as input:
     predict = pickle.load(input)
 
 
-# In[9]:
+# In[4]:
+
+w = predict.w
+b = predict.b
+
+
+# In[5]:
+
+import numpy as np
+
+def sigmod(z):
+    z=np.matrix(z)
+    return 1/(1+np.exp(-z))
+def predict(X):
+    predict = np.matrix(np.zeros(shape=(X.shape[0],1)))
+    count=0
+    for i in X:
+        if i >=0.5:
+            predict[count,0]=0
+        else:
+            predict[count,0]=1
+        count+=1
+    return predict
+
+
+# In[7]:
 
 import pandas as pd
-import numpy as np
 test = pd.read_csv(testdata, encoding='big5',header=None)
 testx = np.matrix(test.values[:,1:])
-testx = predict.featurescaling(testx)
-pre = predict.predict(testx)
+temp =sigmod(w*(testx.T) + b)
+temp = np.array(temp).reshape(600)
+pred=predict(temp)
 
 
-# In[10]:
+# In[8]:
 
-output = np.zeros(shape=(pre.shape[0],2))
-for i in range(pre.shape[0]):
+output = np.zeros(shape=(pred.shape[0],2))
+for i in range(pred.shape[0]):
     output[i,0]=i+1
-    output[i,1]=pre[i]
+    output[i,1]=pred[i]
 df = pd.DataFrame(output,dtype='int')
 df.columns=['id','label']
-df.to_csv(outputfile, index=False)
+df.to_csv(outputdata, index=False)
 

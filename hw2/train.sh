@@ -1,1 +1,1 @@
-python3 logistic_regression.py $1 $2
+python3 generative.py $1 $2
